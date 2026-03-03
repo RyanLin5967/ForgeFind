@@ -1,0 +1,10 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+fastapi
+opencv-python
+uvicorn
+torch
+python-multipart
+torchvision
+segmentation-models-pytorch
+albumentations
+fastapi[standard]

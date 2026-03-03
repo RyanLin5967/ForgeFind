@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForgeFind</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;600;700;800&display=swap" rel="stylesheet">
+    <script src="js/app.js"></script>
+</head>
+<body id="container">
+    <div id="navcontainer">
+        <nav id="navbar">
+            <div id="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <div id="topleft"><a href="index.html">ForgeFind</a></div>
+            </div>
+            <div id="other">
+                <a id="home" class="item" href="index.html">Home</a>
+                <a class="item" href="how-it-works.html">How It Works</a>
+                <a class="item" href="faq.html">FAQ</a>
+            </div>
+        </nav>
+    </div>
+    <div id="mainpage">
+        <div id="text">
+            <svg xmlns="http://www.w3.org/2000/svg" id="bigicon" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-icon lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <div class="labels" id="forgefind">ForgeFind</div>
+            <div class="labels" id="desc">AI-Powered Image Manipulation Detection</div>
+        </div>
+        <div id="select-img">
+            <label id="select">
+                <div id="select-box">
+                    <svg xmlns="http://www.w3.org/2000/svg" id="upload" width="58" height="58" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-icon lucide-upload"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+                    <div class="labels" id="instructions">Drag image here or browse</div>
+                    <div class="labels" id="supports">Supports PNG, JPG, WebP, and other image formats</div>
+                </div>
+            </label>
+            <input type="file" accept="image/*" id="imginput">
+        </div> 
+    </div>
+    <script src="js/app.js"></script>
+</body>
+</html>
