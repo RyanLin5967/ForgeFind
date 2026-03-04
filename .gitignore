@@ -3,6 +3,9 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+backend/ml_models/weights/casia_tamper_unet_latest.pth
+casia_tamper_unet_latest.pth
+backend\static\uploads
 # C extensions
 *.so
 .vscode
