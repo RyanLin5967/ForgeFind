@@ -1,35 +1,42 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import JSONResponse
 from schemas import UploadResponse
-import random, string
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from ml_models.inference import run_opencv, run_pytorch
+import uuid
+from concurrent.futures import ThreadPoolExecutor 
+#use background task to delete images after x minutes
 app = FastAPI()
-
+subapi = FastAPI()
 app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"], )
+# mounts the static directory so canvas.js can actually access the image from there
+app.mount("/static", StaticFiles(directory="C:/Users/idide/imgmanipfind/ForgeFind/backend/static"), name="static")
 
 valid_signatures = {
     b"\xff\xd8\xff": "jpeg",
     b"\x89PNG\r\n\x1a\n": "png",
     b"RIFF": "webp",
 }
-# save to /static/uploads/ with a uuid
-# fix bug with it not finding when non images are sent
+
 @app.post("/upload", response_model=UploadResponse)
 async def take_image(image: UploadFile = File()):
     content = await image.read()
     for type in valid_signatures.keys():
-        if content.startswith(type): #then image is valid
-            uuid = generate_UUID(20)
-            path = f"static/uploads/{uuid}_org.{valid_signatures.get(type)}"
-            with open(path, "wb") as f:
+        if content.startswith(type):
+            img_uuid = uuid.uuid1()
+            org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            with open(org_path, "wb") as f:
                 f.write(content)
-            return UploadResponse(status="success", confidence_score=67, mask_url="idk", org_url=path, coords={"idk": 2})
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                future_opencv = executor.submit(run_opencv, org_path)
+                future_pytorch = executor.submit(run_pytorch, org_path)
+            return UploadResponse(status="success", confidence_score=67, mask_url=future_pytorch.result(), org_url=org_path, coords=future_opencv.result())
     raise HTTPException (
         status_code=404,
         detail="Inavlid file type."
     )
-    
-def generate_UUID(k: int):
-    str = ''.join(random.choices(string.ascii_letters + string.digits, k=k))
-    return str
+def calc_confidence(a,b):
+    pass
 
+
+#import functions from inference.py and use a thread pool executor to run them in parallel

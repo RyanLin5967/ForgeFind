@@ -1,3 +1,5 @@
+import {draw_mask} from "./canvas.js"
+import {get_score} from "./app.js"
 export async function send_image(file){
     const formData = new FormData();
     formData.append("image", file);
@@ -5,5 +7,9 @@ export async function send_image(file){
         method: "POST",
         body: formData,
     });
-    console.log(response.json());
+
+    const data = await response.json()
+    console.log(data);
+    draw_mask(data.mask_url, data.coords)
+    get_score(data.confidence_score)
 }
