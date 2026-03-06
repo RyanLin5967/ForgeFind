@@ -25,15 +25,15 @@ async def take_image(image: UploadFile = File()):
         if content.startswith(type):
             img_uuid = uuid.uuid1()
             org_path = f"C:/Users/idide/imgmanipfind/ForgeFind/backend/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            mask_path = f"{org_path.split("_")[0]}_mask.{org_path.split(".")[1]}"
             with open(org_path, "wb") as f:
                 f.write(content)
-            with ThreadPoolExecutor(max_workers=2) as executor: # run in parallel
+            with ThreadPoolExecutor(max_workers=2) as executor: # run tasks in parallel
                 future_opencv = executor.submit(run_opencv, org_path)
-                future_pytorch = executor.submit(run_pytorch, org_path)
-            return UploadResponse(status="success", confidence_score=67, mask_url=future_pytorch.result(), org_url=org_path, coords=future_opencv.result())
+                future_pytorch = executor.submit(run_pytorch, org_path, mask_path)
+            return UploadResponse(status="success", confidence_score=future_pytorch.result(), mask_url=mask_path, org_url=org_path, coords=future_opencv.result())
     raise HTTPException (
         status_code=404,
         detail="Inavlid file type."
     )
-def calc_confidence(a,b):
-    pass
+
