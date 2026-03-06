@@ -23,6 +23,7 @@ document.getElementById('select-img').addEventListener('click', () => {
   document.getElementById('imginput').click();
 //   showLoadingScreen();
 });
+//MAKE THIS
 function showLoadingScreen(){
 
 }

@@ -8,9 +8,9 @@ from concurrent.futures import ThreadPoolExecutor
 #use background task to delete images after x minutes
 app = FastAPI()
 subapi = FastAPI()
-app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"], )
 # mounts the static directory so canvas.js can actually access the image from there
 app.mount("/static", StaticFiles(directory="C:/Users/idide/imgmanipfind/ForgeFind/backend/static"), name="static")
+app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"], )
 
 valid_signatures = {
     b"\xff\xd8\xff": "jpeg",
@@ -24,10 +24,10 @@ async def take_image(image: UploadFile = File()):
     for type in valid_signatures.keys():
         if content.startswith(type):
             img_uuid = uuid.uuid1()
-            org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            org_path = f"C:/Users/idide/imgmanipfind/ForgeFind/backend/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             with open(org_path, "wb") as f:
                 f.write(content)
-            with ThreadPoolExecutor(max_workers=2) as executor:
+            with ThreadPoolExecutor(max_workers=2) as executor: # run in parallel
                 future_opencv = executor.submit(run_opencv, org_path)
                 future_pytorch = executor.submit(run_pytorch, org_path)
             return UploadResponse(status="success", confidence_score=67, mask_url=future_pytorch.result(), org_url=org_path, coords=future_opencv.result())
@@ -37,6 +37,3 @@ async def take_image(image: UploadFile = File()):
     )
 def calc_confidence(a,b):
     pass
-
-
-#import functions from inference.py and use a thread pool executor to run them in parallel

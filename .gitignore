@@ -5,7 +5,8 @@ __pycache__/
 
 backend/ml_models/weights/casia_tamper_unet_latest.pth
 casia_tamper_unet_latest.pth
-backend\static\uploads
+backend/static/uploads
+backend/static
 # C extensions
 *.so
 .vscode

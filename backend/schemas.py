@@ -5,5 +5,5 @@ class UploadResponse(BaseModel):
     confidence_score: int
     mask_url: str
     org_url: str
-    coords: dict
+    coords: list
 
