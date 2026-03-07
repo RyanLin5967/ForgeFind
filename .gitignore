@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 backend/ml_models/weights/casia_tamper_unet_latest.pth
+backend/ml_models/weights/unet_768_best.pth
 casia_tamper_unet_latest.pth
 backend/static/uploads
 backend/static
