@@ -37,6 +37,13 @@ def run_opencv(image_path):
         w = int(np.max(points[:, 0, 0])) - x
         h = int(np.max(points[:, 0, 1])) - y
         return {"x": x, "y": y, "w": w, "h": h}
+    def boxes_overlap(box1, box2, threshold=0.5):
+        x_overlap = max(0, min(box1["x"] + box1["w"], box2["x"] + box2["w"]) - max(box1["x"], box2["x"]))
+        y_overlap = max(0, min(box1["y"] + box1["h"], box2["y"] + box2["h"]) - max(box1["y"], box2["y"]))
+        intersection = x_overlap * y_overlap
+        area1 = box1["w"] * box1["h"]
+        area2 = box2["w"] * box2["h"]
+        return intersection > threshold * min(area1, area2)
 
     remaining_matches = good_matches
     regions = []
@@ -64,23 +71,19 @@ def run_opencv(image_path):
 
         min_box_area = img_area * 0.005
         if (orig_box["w"] * orig_box["h"] > min_box_area and
-            clone_box["w"] * clone_box["h"] > min_box_area):
+            clone_box["w"] * clone_box["h"] > min_box_area and
+            not boxes_overlap(orig_box, clone_box)):
             regions.append({"original": orig_box, "clone": clone_box, "inliers": len(inliers)})
 
         remaining_matches = outliers
 
     regions = sorted(regions, key=lambda r: r["inliers"], reverse=True)[:1]
-    seen = set()
-    unique_boxes = []
-    for region in regions:
-        for box in (region["original"], region["clone"]):
-            key = (round(box["x"] / 20) * 20, round(box["y"] / 20) * 20)
-            if key not in seen:
-                seen.add(key)
-                unique_boxes.append(box)
 
-    return unique_boxes
+    if len(regions) == 0:
+        return []
 
+    best = regions[0]
+    return [best["original"], best["clone"]]
 
 model_path = "C:/Users/idide/imgmanipfind/ForgeFind/backend/ml_models/weights/casia_tamper_unet_latest_old.pth"
 

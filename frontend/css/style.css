@@ -252,6 +252,7 @@ input[type="file"] {
     padding: 10px;
     transition: 0.5s;
     font-size: 20px;
+    cursor: pointer;
 }
 .option-btns:hover {
     background-color: rgba(0, 40, 80, 1)
@@ -265,45 +266,57 @@ input[type="file"] {
     width: calc(100% - 40px);
 }
 #conf-percent {
-    margin-top: 15px;
-    font-size: 40px;
-    color: yellow;
+    margin: 15px;
+    font-size: 50px;
 }
 #conf-level {
-    margin-top: 20px;
-    border: 2px solid yellow;
+    margin: 10px;
+    border: 2px solid;
     border-radius: 50px;
-    padding-inline: 3px;
-    color: yellow;
+    padding: 5px;
 }
 #conf-bar {
-    margin-top: 10px;
+    margin-top: 25px;
     height: 5px;
-    background-color: yellow;
     border-radius: 5px;
     width: 55%;
 }
-#detected-stuff {
-    
+#conf-label {
+    color: grey !important;
 }
+#detected-label {
+    color: grey;
+}
+
 #c-mf-label {
     display: flex;
     flex-direction: row;
     margin-top: 15px;
+    align-items: center;
+
 }
 #copy-icon {
+    margin-right: 5px;
+    padding: 5px;
+    border-radius: 10px;
+}
+#scissor-icon {
+    padding: 5px;
+    border-radius: 10px;
     margin-right: 5px;
 }
 #c-mf-bar {
     margin-top: 10px;
     margin-bottom: 10px;
+    margin-right: 10px;
     height: 5px;
-    background-color: yellow;
     border-radius: 5px;
-    width: 55%;
 }
 #c-mf-decision {
     margin-left: auto;
+    border: 1px solid;
+    border-radius: 12px;
+    padding: 5px;
 }
 #c-mf{
     display: flex;
@@ -313,6 +326,7 @@ input[type="file"] {
     margin-left: auto;
 }
 #spl-label {
+    align-items: center;
     display: flex;
     flex-direction: row;
     margin-top: 15px;
@@ -321,9 +335,7 @@ input[type="file"] {
     margin-top: 10px;
     margin-bottom: 10px;
     height: 5px;
-    background-color: yellow;
     border-radius: 5px;
-    width: 55%;
 }
 #spl-percent{
     margin-left: auto;
@@ -333,5 +345,15 @@ input[type="file"] {
     flex-direction: row;
 }
 #spl-decision {
-    margin-left: auto
+    margin-left: auto;
+    padding: 5px;
+    border: 1px solid;
+    border-radius: 10px;
+}
+.detected-labels {
+    color: rgb(206, 200, 200);
+}
+#c-mf-bar, #spl-bar {
+    background-color: gray;
+    width: 100%;
 }

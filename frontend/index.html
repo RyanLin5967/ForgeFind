@@ -49,7 +49,7 @@
         <div id="filled-circle"></div>
     </div>
     <!-- results screen elements -->
-     <div id="results-page"> <!--add back hidden class after done-->
+     <div id="results-page" class="hidden"> <!--add back hidden class after done-->
         <img id="user-img">
         <div id="option-row">
             <button id="org-img-btn" class="option-btns">Original Image</button>
@@ -63,14 +63,16 @@
             <span id="conf-level"></span> <!--change accordingly-->
             <div id="conf-bar"></div> <!-- bar that'll fill up deppending on confidence percentage-->
         </div>
-        <div id="detected-stuff" class="result-container">Detected Manipulations
-            <div id="c-mf-label"><svg id="copy-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy-Move Forgery<div id="c-mf-decision">Yes</div></div>
+        <!-- need to add color stuff here -->
+        <div id="detected-stuff" class="result-container">
+            <div id="detected-label">Detected Manipulations</div>
+            <div id="c-mf-label" class="detected-labels"><svg class="detected-svgs" id="copy-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy-Move Forgery<div id="c-mf-decision"></div></div>
             <div id="c-mf">
-                <div id="c-mf-bar"></div><div id="c-mf-percent">55%</div>
+                <div id="c-mf-bar"></div><div id="c-mf-percent"></div>
             </div>
-            <div id="spl-label"><svg id="scissor-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scissors-icon lucide-scissors"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>Splicing <div id="spl-decision">Yes</div></div>
+            <div id="spl-label" class="detected-labels"><svg class="detected-svgs" id="scissor-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-scissors-icon lucide-scissors"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>Splicing <div id="spl-decision"></div></div>
             <div id="spl">
-                <div id="spl-bar"></div><div id="spl-percent">55%</div>
+                <div id="spl-bar"></div><div id="spl-percent"></div>
             </div>
         </div>
         <div id="upload-another"><a href="index.html">Upload New Image</a></div>
