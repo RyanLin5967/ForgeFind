@@ -1,44 +1,44 @@
 import {send_image} from "./api.js"
+import {getScore} from "./api.js"
 
-export function get_score(score){
-    //data transfer works
-    return score
-}
+let imagePromise = null;
 document.body.classList.add('notransition');
+window.addEventListener('load', () => {
+    document.body.classList.remove('notransition');
+});
 const selectImg = document.getElementById('select-img');
 selectImg.addEventListener("dragover", (e) => {
     e.preventDefault();
 });
-selectImg.addEventListener("drop", (e) => { //when user 
+selectImg.addEventListener("drop", (e) => {
     e.preventDefault();
     const img = e.dataTransfer.files[0];
-    send_image(img)
-    showLoadingScreen();
+    imagePromise = send_image(img)
+    showLoadingScreen(img);
 });
-
-window.addEventListener('load', () => {
-    document.body.classList.remove('notransition');
+selectImg.addEventListener('click', (e) => {
+    document.getElementById('imginput').click();
 });
-document.getElementById('select-img').addEventListener('click', () => {
-  document.getElementById('imginput').click();
-  showLoadingScreen();
-});
-// add separate action listener for when user actually selects element
-function showLoadingScreen(){
+document.getElementById('imginput').addEventListener("change", (e) => {
+    const img = e.currentTarget.files[0];
+    imagePromise = send_image(img)
+    showLoadingScreen(img);
+})
+function showLoadingScreen(img){
     document.getElementById('loading-screen').classList.remove('hidden');
-    for (let i = 1; i<=3; i++){
-        document.getElementById(`loading-circle${i}`).classList.remove('hidden')
-    }
-    document.getElementById('filled-circle').classList.remove('hidden')
-    document.getElementById('scan-line').classList.remove('hidden')
-
     setTimeout( () => {
         document.getElementById('loading-screen').classList.add('hidden');
-        for (let j = 1; j<=3; j++){
-            document.getElementById(`loading-circle${j}`).classList.add('hidden')
-        }
-        document.getElementById('filled-circle').classList.add('hidden')
-        document.getElementById('scan-line').classList.add('hidden')
-
-    }, 300000);
+        showResults(img);
+    }, 1000);
+}
+async function showResults(img){
+    document.getElementById('results-page').classList.remove('hidden');
+    const data = await imagePromise;
+    document.getElementById('conf-percent').textContent = data.confidence_score +  "%";
+    document.getElementById('select-img').classList.add('hidden')
+    document.getElementById('user-img').src = URL.createObjectURL(await img);
+    document.getElementById('conf-level').textContent = getLevel();
+}
+function getLevel(){
+    return "Medium Risk"
 }
