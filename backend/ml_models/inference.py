@@ -21,14 +21,14 @@ def run_opencv(image_path):
         if len(filtered) < 2:
             continue
         m, n = filtered[0], filtered[1]
-        if m.distance < 0.65 * n.distance:  # stricter ratio test (was 0.75)
+        if m.distance < 0.70 * n.distance:  # stricter ratio test (was 0.75)
             # ignore matches between nearby keypoints (likely same region)
             pt1 = np.array(keypoints[m.queryIdx].pt)
             pt2 = np.array(keypoints[m.trainIdx].pt)
-            if np.linalg.norm(pt1 - pt2) > 20:  # must be spatially separated
+            if np.linalg.norm(pt1 - pt2) > 50:  # must be spatially separated
                 good_matches.append(m)
 
-    if len(good_matches) < 10:  # raised minimum (was 4)
+    if len(good_matches) < 4:  # raised minimum (was 4)
         return []
 
     def bounding_box(points):
@@ -42,10 +42,10 @@ def run_opencv(image_path):
     regions = []
     img_area = img.shape[0] * img.shape[1]
 
-    while len(remaining_matches) >= 10:  # raised minimum (was 4)
+    while len(remaining_matches) >= 4:
         src_points = np.float32([keypoints[m.queryIdx].pt for m in remaining_matches]).reshape(-1, 1, 2)
         dst_points = np.float32([keypoints[m.trainIdx].pt for m in remaining_matches]).reshape(-1, 1, 2)
-        _, mask = cv.findHomography(src_points, dst_points, cv.RANSAC, 3.0)  # stricter RANSAC (was 5.0)
+        _, mask = cv.findHomography(src_points, dst_points, cv.RANSAC, 3.0)
 
         if mask is None:
             break
@@ -53,23 +53,23 @@ def run_opencv(image_path):
         inliers = [m for m, flag in zip(remaining_matches, mask.ravel()) if flag == 1]
         outliers = [m for m, flag in zip(remaining_matches, mask.ravel()) if flag == 0]
 
-        if len(inliers) < 8:  # require more inliers to count as a real region (was 0)
+        if len(inliers) < 6:
             break
 
         src_inliers = np.float32([keypoints[m.queryIdx].pt for m in inliers]).reshape(-1, 1, 2)
         dst_inliers = np.float32([keypoints[m.trainIdx].pt for m in inliers]).reshape(-1, 1, 2)
 
-        orig_box = bounding_box(src_inliers)
+        orig_box  = bounding_box(src_inliers)
         clone_box = bounding_box(dst_inliers)
 
-        # ignore tiny bounding boxes (likely noise)
-        min_box_area = img_area * 0.01  # must be at least 1% of image
+        min_box_area = img_area * 0.005
         if (orig_box["w"] * orig_box["h"] > min_box_area and
             clone_box["w"] * clone_box["h"] > min_box_area):
-            regions.append({"original": orig_box, "clone": clone_box})
+            regions.append({"original": orig_box, "clone": clone_box, "inliers": len(inliers)})
 
         remaining_matches = outliers
 
+    regions = sorted(regions, key=lambda r: r["inliers"], reverse=True)[:1]
     seen = set()
     unique_boxes = []
     for region in regions:
