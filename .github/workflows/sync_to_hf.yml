@@ -21,4 +21,4 @@ jobs:
           echo "ml_models/weights/" > .gitignore
           git add .
           git commit -m "deploy"
-          git push --force https://idident:$HF_TOKEN@huggingface.co/spaces/idident/forgefind main
+          git push --force https://idident:$HF_TOKEN@huggingface.co/spaces/idident/forgefind HEAD:main  
