@@ -32,6 +32,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 # mounts the static directory so canvas.js can actually access the image from there
+os.makedirs("static/uploads", exist_ok=True)
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"], )
 
