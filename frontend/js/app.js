@@ -4,24 +4,24 @@ import {renderView, initCanvas} from "./canvas.js"
 let imagePromise = null;
 let img = null;
 function getLevel(confScore){
-    if (confScore <= 30 && confScore >= 0) {
+    if (confScore <= 30) {
         return "Low Risk"
     }
-    if (confScore <= 70 && confScore >= 0) {
+    if (confScore <= 70) {
         return "Medium Risk"
     }
-    if (confScore <= 100 && confScore >= 0) {
+    if (confScore <= 100) {
         return "High Risk"
     }
 }
 function isDetected(confScore){
-    if (confScore <= 30 && confScore >= 0) {
+    if (confScore <= 30) {
         return "No"
     }
-    if (confScore <= 70 && confScore >= 0) {
+    if (confScore <= 70) {
         return "Maybe"
     }
-    if (confScore <= 100 && confScore >= 0) {
+    if (confScore <= 100) {
         return "Yes"
     }
 }
@@ -53,9 +53,6 @@ window.addEventListener('load', () => {
     initCanvas('result-canvas');
 });
 document.body.classList.add('notransition');
-window.addEventListener('load', () => {
-    document.body.classList.remove('notransition');
-});
 const selectImg = document.getElementById('select-img');
 selectImg.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -92,16 +89,14 @@ document.getElementById('overall-btn').addEventListener('click', () => {
     renderView('overall');
 });
 
-function showLoadingScreen(img){
+async function showLoadingScreen(){
     document.getElementById('loading-screen').classList.remove('hidden');
-    setTimeout( () => {
-        document.getElementById('loading-screen').classList.add('hidden');
-        showResults(img);
-    }, 3000);
-}
-async function showResults(img){
-    document.getElementById('results-page').classList.remove('hidden');
+    document.getElementById('loading-screen').classList.add('hidden');
     const data = await imagePromise;
+    showResults(data);
+}
+async function showResults(data){
+    document.getElementById('results-page').classList.remove('hidden');
     document.getElementById('conf-percent').textContent = getFullScore(data.coords, data.confidence_score) +  "%";
     document.getElementById('select-img').classList.add('hidden')
     document.getElementById('conf-level').textContent = getLevel(getFullScore(data.coords, data.confidence_score));
