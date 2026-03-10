@@ -50,7 +50,7 @@ async def take_image(image: UploadFile = File()):
         if content.startswith(type):
             img_uuid = uuid.uuid1()
             org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
-            mask_path = f"{org_path.split("_")[0]}_mask.{org_path.split(".")[1]}"
+            mask_path = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             org_url = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_url = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             with open(org_path, "wb") as f:
