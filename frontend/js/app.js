@@ -1,5 +1,8 @@
 import {send_image} from "./api.js"
+import {renderView, initCanvas} from "./canvas.js"
 
+let imagePromise = null;
+let img = null;
 function getLevel(confScore){
     if (confScore <= 30 && confScore >= 0) {
         return "Low Risk"
@@ -45,7 +48,10 @@ function getFullScore(opencv, pytorch){
     }
     return Math.round(pytorch)
 }
-let imagePromise = null;
+window.addEventListener('load', () => {
+    document.body.classList.remove('notransition');
+    initCanvas('result-canvas');
+});
 document.body.classList.add('notransition');
 window.addEventListener('load', () => {
     document.body.classList.remove('notransition');
@@ -56,7 +62,7 @@ selectImg.addEventListener("dragover", (e) => {
 });
 selectImg.addEventListener("drop", (e) => {
     e.preventDefault();
-    const img = e.dataTransfer.files[0];
+    img = e.dataTransfer.files[0];
     imagePromise = send_image(img)
     showLoadingScreen(img);
 });
@@ -64,10 +70,28 @@ selectImg.addEventListener('click', (e) => {
     document.getElementById('imginput').click();
 });
 document.getElementById('imginput').addEventListener("change", (e) => {
-    const img = e.currentTarget.files[0];
+    img = e.currentTarget.files[0];
     imagePromise = send_image(img)
     showLoadingScreen(img);
 })
+
+// option row buttons
+document.getElementById('org-img-btn').addEventListener('click', () => {
+    renderView('original');
+});
+
+document.getElementById('noise-btn').addEventListener('click', () => {
+    renderView('noise');
+});
+
+document.getElementById('clone-btn').addEventListener('click', () => {
+    renderView('clone');
+});
+
+document.getElementById('overall-btn').addEventListener('click', () => {
+    renderView('overall');
+});
+
 function showLoadingScreen(img){
     document.getElementById('loading-screen').classList.remove('hidden');
     setTimeout( () => {
@@ -80,7 +104,6 @@ async function showResults(img){
     const data = await imagePromise;
     document.getElementById('conf-percent').textContent = getFullScore(data.coords, data.confidence_score) +  "%";
     document.getElementById('select-img').classList.add('hidden')
-    document.getElementById('user-img').src = URL.createObjectURL(img);
     document.getElementById('conf-level').textContent = getLevel(getFullScore(data.coords, data.confidence_score));
     document.getElementById('conf-container').style.color = getColor(getLevel(getFullScore(data.coords, data.confidence_score)));
     document.getElementById('conf-bar').style.backgroundColor = getColor(getLevel(getFullScore(data.coords, data.confidence_score)));

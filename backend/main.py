@@ -26,14 +26,24 @@ async def take_image(image: UploadFile = File()):
             img_uuid = uuid.uuid1()
             org_path = f"C:/Users/idide/imgmanipfind/ForgeFind/backend/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_path = f"{org_path.split("_")[0]}_mask.{org_path.split(".")[1]}"
+            org_url = f"http://localhost:8000/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            mask_url = f"http://localhost:8000/static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             with open(org_path, "wb") as f:
                 f.write(content)
             with ThreadPoolExecutor(max_workers=2) as executor: # run tasks in parallel
                 future_opencv = executor.submit(run_opencv, org_path)
                 future_pytorch = executor.submit(run_pytorch, org_path, mask_path)
-            return UploadResponse(status="success", confidence_score=future_pytorch.result(), mask_url=mask_path, org_url=org_path, coords=future_opencv.result())
+            return UploadResponse(
+                status="success", 
+                confidence_score=future_pytorch.result(), 
+                mask_url=mask_url, org_url=org_url, # pass in urls cuz web page can't access files stored in disk
+                coords=future_opencv.result())
     raise HTTPException (
         status_code=404,
         detail="Inavlid file type."
     )
 
+def calc_percentage(coords, pytorch_conf):
+    if len(coords) >= 1:
+        return 98
+    return pytorch_conf
