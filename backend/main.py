@@ -1,13 +1,46 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, requests
 from schemas import UploadResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from ml_models.inference import run_opencv, run_pytorch
+import asyncio
+import os
+import time
+from contextlib import asynccontextmanager
 import uuid
 from concurrent.futures import ThreadPoolExecutor 
-#use background task to delete images after x minutes
-app = FastAPI()
-subapi = FastAPI()
+
+DIR = "static/uploads"
+CLEANUP_INTERVAL = 600
+MAX_AGE = 600
+
+model_url = "https://huggingface.co/idident/forgefind_model/blob/main/casia_tamper_unet_latest.pth"
+model_path = "/weights/casia_tamper_unet_latest_old.pth"
+
+async def cleanup_uploads():
+    while True:
+        await asyncio.sleep(CLEANUP_INTERVAL)
+        now = time.time()
+        for filename in os.listdir(DIR):
+            filepath = os.path.join(DIR, filename)
+            file_age = now-os.path.getmtime(filepath)
+            if file_age > MAX_AGE:
+                os.remove(filepath)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    if not os.path.exists(model_path):
+        print("downloading model...")
+        os.makedirs("weights", exist_ok=True)
+        response = requests.get(model_url)
+        with open(model_path, "wb") as f:
+            f.write(response.content)
+            print("model downloaded")
+    task = asyncio.create_task(cleanup_uploads())
+    yield
+    task.cancel()
+
+app = FastAPI(lifespan=lifespan)
 # mounts the static directory so canvas.js can actually access the image from there
 app.mount("/static", StaticFiles(directory="C:/Users/idide/imgmanipfind/ForgeFind/backend/static"), name="static")
 app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"], )
@@ -43,7 +76,4 @@ async def take_image(image: UploadFile = File()):
         detail="Inavlid file type."
     )
 
-def calc_percentage(coords, pytorch_conf):
-    if len(coords) >= 1:
-        return 98
-    return pytorch_conf
+

@@ -5,7 +5,7 @@ let score = null;
 export async function send_image(file){
     const formData = new FormData();
     formData.append("image", file);
-    const response = await fetch("http://localhost:8000/upload", {
+    const response = await fetch("https://forgefind.onrender.com/upload", {
         method: "POST",
         body: formData,
     });
