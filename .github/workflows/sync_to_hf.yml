@@ -13,5 +13,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        # Replace 'idident' with your HF username and 'forgefind' with your Space name
-        run: git push --force https://idident:$HF_TOKEN@huggingface.co/spaces/idident/forgefind main
+        run: git push --force https://idident:$HF_TOKEN@huggingface.co/spaces/idident/forgefind HEAD:main
