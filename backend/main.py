@@ -48,8 +48,8 @@ async def take_image(image: UploadFile = File()):
     content = await image.read()
     for type in valid_signatures.keys():
         if content.startswith(type):
-            img_uuid = uuid.uuid1()
-            org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            img_uuid = uuid.uuid4()
+            org_path = f"C:/Users/idide/imgmanipfind/ForgeFind/backend/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_path = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             org_url = f"https://idident-forgefind.hf.space/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_url = f"https://idident-forgefind.hf.space/static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
@@ -64,8 +64,6 @@ async def take_image(image: UploadFile = File()):
                 mask_url=mask_url, org_url=org_url, # pass in urls cuz web page can't access files stored in disk
                 coords=future_opencv.result())
     raise HTTPException (
-        status_code=404,
-        detail="Inavlid file type."
+        status_code=415,
+        detail="Invalid file type."
     )
-
-
