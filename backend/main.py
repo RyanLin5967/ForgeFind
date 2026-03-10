@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, requests
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 from schemas import UploadResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -14,9 +14,6 @@ DIR = "static/uploads"
 CLEANUP_INTERVAL = 600
 MAX_AGE = 600
 
-model_url = "https://huggingface.co/idident/forgefind_model/blob/main/casia_tamper_unet_latest.pth"
-model_path = "/weights/casia_tamper_unet_latest_old.pth"
-
 async def cleanup_uploads():
     while True:
         await asyncio.sleep(CLEANUP_INTERVAL)
@@ -29,20 +26,13 @@ async def cleanup_uploads():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if not os.path.exists(model_path):
-        print("downloading model...")
-        os.makedirs("weights", exist_ok=True)
-        response = requests.get(model_url)
-        with open(model_path, "wb") as f:
-            f.write(response.content)
-            print("model downloaded")
     task = asyncio.create_task(cleanup_uploads())
     yield
     task.cancel()
 
 app = FastAPI(lifespan=lifespan)
 # mounts the static directory so canvas.js can actually access the image from there
-app.mount("/static", StaticFiles(directory="C:/Users/idide/imgmanipfind/ForgeFind/backend/static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"], )
 
 valid_signatures = {
@@ -57,10 +47,10 @@ async def take_image(image: UploadFile = File()):
     for type in valid_signatures.keys():
         if content.startswith(type):
             img_uuid = uuid.uuid1()
-            org_path = f"C:/Users/idide/imgmanipfind/ForgeFind/backend/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_path = f"{org_path.split("_")[0]}_mask.{org_path.split(".")[1]}"
-            org_url = f"http://localhost:8000/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
-            mask_url = f"http://localhost:8000/static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
+            org_url = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            mask_url = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             with open(org_path, "wb") as f:
                 f.write(content)
             with ThreadPoolExecutor(max_workers=2) as executor: # run tasks in parallel
