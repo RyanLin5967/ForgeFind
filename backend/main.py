@@ -51,8 +51,8 @@ async def take_image(image: UploadFile = File()):
             img_uuid = uuid.uuid1()
             org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_path = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
-            org_url = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
-            mask_url = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
+            org_url = f"https://idident-forgefind.hf.space/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            mask_url = f"https://idident-forgefind.hf.space/static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             with open(org_path, "wb") as f:
                 f.write(content)
             with ThreadPoolExecutor(max_workers=2) as executor: # run tasks in parallel
