@@ -40,5 +40,5 @@ async def take_image(image: UploadFile = File()):
                 coords=future_opencv.result())
     raise HTTPException (
         status_code=415,
-        detail="Inavlid file type."
+        detail="Invalid file type."
     )
