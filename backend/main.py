@@ -23,9 +23,9 @@ async def take_image(image: UploadFile = File()):
     content = await image.read()
     for type in valid_signatures.keys():
         if content.startswith(type):
-            img_uuid = uuid.uuid1()
-            org_path = f"C:/Users/idide/imgmanipfind/ForgeFind/backend/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
-            mask_path = f"{org_path.split("_")[0]}_mask.{org_path.split(".")[1]}"
+            img_uuid = uuid.uuid4()
+            org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            mask_path = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             org_url = f"http://localhost:8000/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_url = f"http://localhost:8000/static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             with open(org_path, "wb") as f:
@@ -39,11 +39,6 @@ async def take_image(image: UploadFile = File()):
                 mask_url=mask_url, org_url=org_url, # pass in urls cuz web page can't access files stored in disk
                 coords=future_opencv.result())
     raise HTTPException (
-        status_code=404,
+        status_code=415,
         detail="Inavlid file type."
     )
-
-def calc_percentage(coords, pytorch_conf):
-    if len(coords) >= 1:
-        return 98
-    return pytorch_conf
