@@ -13,8 +13,12 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: 
-            git filter-branch --force --index-filter \
-            'git rm -r --cached --ignore-unmatch backend/ml_models/weights/' \
-            HEAD
-            git push --force https://idident:$HF_TOKEN@huggingface.co/spaces/idident/forgefind HEAD:main
+        run: |
+          cd backend
+          git init
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          echo "ml_models/weights/" > .gitignore
+          git add .
+          git commit -m "deploy"
+          git push --force https://idident:$HF_TOKEN@huggingface.co/spaces/idident/forgefind main
