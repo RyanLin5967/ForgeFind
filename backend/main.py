@@ -5,12 +5,39 @@ from fastapi.staticfiles import StaticFiles
 from ml_models.inference import run_opencv, run_pytorch
 import uuid
 from concurrent.futures import ThreadPoolExecutor 
-#use background task to delete images after x minutes
-app = FastAPI()
-subapi = FastAPI()
-# mounts the static directory so canvas.js can actually access the image from there
-app.mount("/static", StaticFiles(directory="C:/Users/idide/imgmanipfind/ForgeFind/backend/static"), name="static")
+import time
+import asyncio
+import os
+from contextlib import asynccontextmanager
+import uuid
+from concurrent.futures import ThreadPoolExecutor 
+
+DIR = "static/uploads"
+CLEANUP_INTERVAL = 600
+MAX_AGE = 600
+
+async def cleanup_uploads():
+    while True:
+        await asyncio.sleep(CLEANUP_INTERVAL)
+        now = time.time()
+        for filename in os.listdir(DIR):
+            filepath = os.path.join(DIR, filename)
+            file_age = now-os.path.getmtime(filepath)
+            if file_age > MAX_AGE:
+                os.remove(filepath)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(cleanup_uploads())
+    yield
+    task.cancel()
+
+app = FastAPI(lifespan=lifespan)
 app.add_middleware( CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"], )
+# mounts the static directory so canvas.js can actually access the image from there
+os.makedirs("static/uploads", exist_ok=True)
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 valid_signatures = {
     b"\xff\xd8\xff": "jpeg",

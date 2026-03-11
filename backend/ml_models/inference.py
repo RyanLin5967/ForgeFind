@@ -3,6 +3,7 @@ import cv2 as cv
 from fastapi.responses import JSONResponse
 import torch
 import segmentation_models_pytorch as smp 
+import os
 
 #returns a json with coordinates to cloned parts
 def run_opencv(image_path):
@@ -44,7 +45,7 @@ def run_opencv(image_path):
         area1 = box1["w"] * box1["h"]
         area2 = box2["w"] * box2["h"]
         return intersection > threshold * min(area1, area2)
-
+    
     remaining_matches = good_matches
     regions = []
     img_area = img.shape[0] * img.shape[1]
@@ -85,7 +86,8 @@ def run_opencv(image_path):
     best = regions[0]
     return [best["original"], best["clone"]]
 
-model_path = "C:/Users/idide/imgmanipfind/ForgeFind/backend/ml_models/weights/casia_tamper_unet_latest_old.pth"
+BASE_DIR   = os.path.dirname(__file__)
+model_path = os.path.join(BASE_DIR, "weights", "casia_tamper_unet_latest_old.pth")
 
 unet = smp.Unet(
     encoder_name="resnet34",
@@ -123,7 +125,7 @@ def run_pytorch(image_path, mask_path):
     probs_np = probs.squeeze(0).squeeze(0).cpu().numpy()
     mask_np_binary = mask.squeeze(0).squeeze(0).cpu().numpy()
 
-    probs_np = cv.resize(probs_np, (original_w, original_h), interpolation=cv.INTER_CUBIC)
+    probs_np = cv.resize(probs_np, (original_w, original_h), interpolation=cv.INTER_LINEAR)
     mask_np_binary = (probs_np > 0.5).astype(np.float32)
     mask_save = (mask_np_binary * 255).astype(np.uint8)
 
@@ -133,6 +135,8 @@ def run_pytorch(image_path, mask_path):
     kernel = np.ones((3, 3), np.uint8)
     mask_save = cv.morphologyEx(mask_save, cv.MORPH_OPEN, kernel)
     mask_save = cv.morphologyEx(mask_save, cv.MORPH_CLOSE, kernel)
+    # erode once to pull the mask boundary inward — counteracts upscale bleed
+    mask_save = cv.erode(mask_save, kernel, iterations=1)
 
     cv.imwrite(mask_path, mask_save)
 
