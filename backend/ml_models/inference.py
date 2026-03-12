@@ -39,14 +39,14 @@ def run_opencv(image_path):
         w = int(np.max(points[:, 0, 0])) - x
         h = int(np.max(points[:, 0, 1])) - y
         return {"x": x, "y": y, "w": w, "h": h}
-    def boxes_overlap(box1, box2, threshold=0.5):
+    def boxes_overlap(box1, box2, threshold=0.05):  # lowered from 0.5 — any meaningful overlap rejects
         x_overlap = max(0, min(box1["x"] + box1["w"], box2["x"] + box2["w"]) - max(box1["x"], box2["x"]))
         y_overlap = max(0, min(box1["y"] + box1["h"], box2["y"] + box2["h"]) - max(box1["y"], box2["y"]))
         intersection = x_overlap * y_overlap
         area1 = box1["w"] * box1["h"]
         area2 = box2["w"] * box2["h"]
         return intersection > threshold * min(area1, area2)
-    
+
     remaining_matches = good_matches
     regions = []
     img_area = img.shape[0] * img.shape[1]
@@ -109,11 +109,14 @@ unet = smp.Unet(
 unet.load_state_dict(torch.load(model_path, map_location="cpu"))
 unet.eval()
 
+MAX_MASK_RATIO = 0.25  # lowered from 0.35 — real splicing rarely covers more than a quarter of the image
+MIN_REGION_AREA = 2000  # connected components smaller than this (in pixels) are noise
+ 
 def run_pytorch(image_path, mask_path):
     img = cv.imread(image_path)
     img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
     original_h, original_w = img.shape[:2]
-
+ 
     img = cv.resize(img, (256, 256))
     img = img / 255.0
     mean = np.array([0.485, 0.456, 0.406])
@@ -121,39 +124,63 @@ def run_pytorch(image_path, mask_path):
     img = (img - mean) / std
     img = img.transpose(2, 0, 1)
     img = torch.tensor(img, dtype=torch.float32).unsqueeze(0)
-
+ 
     device = "cpu"
     unet.to(device)
     img = img.to(device)
-
+ 
     with torch.no_grad():
         output = unet(img)
-
+ 
     probs = torch.sigmoid(output)
     mask = (probs > 0.5).float()
-
+ 
     probs_np = probs.squeeze(0).squeeze(0).cpu().numpy()
     mask_np_binary = mask.squeeze(0).squeeze(0).cpu().numpy()
-
+ 
     probs_np = cv.resize(probs_np, (original_w, original_h), interpolation=cv.INTER_LINEAR)
     mask_np_binary = (probs_np > 0.5).astype(np.float32)
     mask_save = (mask_np_binary * 255).astype(np.uint8)
-
+ 
     _, mask_save = cv.threshold(mask_save, 127, 255, cv.THRESH_BINARY)
     mask_save = cv.GaussianBlur(mask_save, (3, 3), 0)
     _, mask_save = cv.threshold(mask_save, 127, 255, cv.THRESH_BINARY)
     kernel = np.ones((3, 3), np.uint8)
-    mask_save = cv.morphologyEx(mask_save, cv.MORPH_OPEN, kernel)
     mask_save = cv.morphologyEx(mask_save, cv.MORPH_CLOSE, kernel)
-    # erode once to pull the mask boundary inward — counteracts upscale bleed
-    mask_save = cv.erode(mask_save, kernel, iterations=1)
+    mask_save = cv.morphologyEx(mask_save, cv.MORPH_OPEN, kernel)
+ 
+    # erode to shrink mask boundaries
+    mask_save = cv.erode(mask_save, kernel, iterations=2)
+    # if mask covers too much of the image, model is confused — wipe it
+    total_pixels = original_h * original_w
+    white_pixels = cv.countNonZero(mask_save)
+    if white_pixels / total_pixels > MAX_MASK_RATIO:
+        mask_save[:] = 0
 
+    # remove small isolated blobs — real splicing leaves a large coherent region
+    num_labels, labels, stats, _ = cv.connectedComponentsWithStats(mask_save, connectivity=8)
+    for i in range(1, num_labels):
+        for i in range(1, num_labels):
+            area = stats[i, cv.CC_STAT_AREA]
+            # get the mean confidence of just this blob's pixels
+            blob_probs = probs_np[labels == i]
+            blob_confidence = np.mean(blob_probs)
+            
+            # small blobs need high confidence, large blobs can survive with lower confidence
+            required_confidence = max(0.9 - (area / total_pixels) * 10, 0.5)
+            
+            if blob_confidence < required_confidence:
+                mask_save[labels == i] = 0
+ 
+    # sync mask_np_binary with the final cleaned mask so confidence matches what's displayed
+    mask_np_binary = (mask_save / 255).astype(np.float32)
+ 
     cv.imwrite(mask_path, mask_save)
-
+ 
     white_pixel_probs = probs_np[mask_np_binary == 1]
     if len(white_pixel_probs) == 0:
         confidence = 0.0
     else:
         confidence = round(float(np.mean(white_pixel_probs)) * 100, 2)
-
+ 
     return confidence
