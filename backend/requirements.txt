@@ -9,3 +9,5 @@ torchvision
 segmentation-models-pytorch
 albumentations
 fastapi[standard]
+pytest
+httpx
