@@ -23,7 +23,7 @@ jobs:
                 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
                 pip install segmentation-models-pytorch albumentations
             - name: Run FastAPI tests
-              run: cd backend && pytest tests/test_api.py -v
+              run: cd backend && python -m pytest tests/test_api.py -v
     model-tests:
         runs-on: ubuntu-latest
         steps:
@@ -33,4 +33,4 @@ jobs:
                 curl -L -o backend/ml_models/weights/casia_tamper_unet_latest.pth \
                   https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth
             - name: Run model detection tests
-              run: cd backend && pytest tests/test_detection.py -v
+              run: cd backend && python -m pytest tests/test_detection.py -v
