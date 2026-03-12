@@ -23,7 +23,7 @@ jobs:
                 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
                 pip install segmentation-models-pytorch albumentations
             - name: Run FastAPI tests
-              run: cd backend && pytest/tests/test_api.py -v
+              run: cd backend && pytest tests/test_api.py -v
     model-tests:
         runs-on: ubuntu-latest
         steps:
