@@ -1,0 +1,36 @@
+name: Tests
+
+on:
+    push:
+        branches: [dev]
+    pull_request:
+        branches: [dev]
+
+jobs:
+    api-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.11"
+            - name: Install dependencies
+              run: |
+                pip install fastapi uvicorn python-multipart httpx pytest
+                pip install numpy opencv-python-headless
+                pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+                pip install segmentation-models-pytorch albumentations
+            - name: Run FastAPI tests
+              run: cd backend && pytest/tests/test_api.py -v
+    model-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Download model weights
+              run: |
+                mkdir -p backend/ml_models/weights
+                curl -L -o backend/ml_models/weights/casia_tamper_unet_latest.pth \
+                  https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth
+            - name: Run model detection tests
+              run: cd backend && pytest tests/test_detection.py -v
