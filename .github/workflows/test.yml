@@ -18,12 +18,13 @@ jobs:
                 python-version: "3.11"
             - name: Install dependencies
               run: |
-                pip install fastapi uvicorn python-multipart httpx pytest
-                pip install numpy opencv-python-headless
-                pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-                pip install segmentation-models-pytorch albumentations
+                python -m pip install --upgrade pip
+                python -m pip install fastapi uvicorn python-multipart httpx pytest
+                python -m pip install numpy opencv-python-headless
+                python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+                python -m pip install segmentation-models-pytorch albumentations
             - name: Run FastAPI tests
-              run: cd backend && pytest -m fast -v
+              run: cd backend && python -m pytest tests/test_detection.py -v
     model-tests:
         runs-on: ubuntu-latest
         steps:
@@ -33,4 +34,4 @@ jobs:
                 curl -L -o backend/ml_models/weights/casia_tamper_unet_latest.pth \
                   https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth
             - name: Run model detection tests
-              run: cd backend && pytest -m slow -v
+              run: cd backend && python -m pytest tests/test_api.py -v
