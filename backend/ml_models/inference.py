@@ -87,7 +87,7 @@ def run_opencv(image_path):
     return [best["original"], best["clone"]]
 
 BASE_DIR = os.path.dirname(__file__)
-model_path = os.path.join(BASE_DIR, "weights", "casia_tamper_unet_latest_old.pth")
+model_path = os.path.join(BASE_DIR, "weights", "model.pth")
 
 unet = smp.Unet(
     encoder_name="resnet34",
