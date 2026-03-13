@@ -41,6 +41,6 @@ jobs:
               run: |
                 mkdir -p backend/ml_models/weights
                 curl -L -o backend/ml_models/weights/casia_tamper_unet_latest.pth \
-                  https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth
+                https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth
             - name: Run model detection tests
               run: cd backend && python -m pytest tests/test_detection.py -v
