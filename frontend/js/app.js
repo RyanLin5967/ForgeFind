@@ -91,9 +91,13 @@ document.getElementById('overall-btn').addEventListener('click', () => {
 
 async function showLoadingScreen(){
     document.getElementById('loading-screen').classList.remove('hidden');
-    document.getElementById('loading-screen').classList.add('hidden');
-    const data = await imagePromise;
-    showResults(data);
+    try{
+        const data = await imagePromise;
+        document.getElementById('loading-screen').classList.add('hidden');
+        showResults(data);
+    } catch (error){
+        alert("error" || error.detail)
+    }
 }
 async function showResults(data){
     document.getElementById('results-page').classList.remove('hidden');
