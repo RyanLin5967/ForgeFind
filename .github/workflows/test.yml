@@ -21,6 +21,11 @@ jobs:
                 python -m pip install --upgrade pip
                 python -m pip install fastapi uvicorn python-multipart httpx pytest numpy opencv-python-headless segmentation-models-pytorch albumentations
                 python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+            - name: Download model weights
+              run: |
+                mkdir -p backend/ml_models/weights
+                curl -L -o backend/ml_models/weights/model.pth \
+                https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth
             - name: Run FastAPI tests
               run: cd backend && python -m pytest tests/test_api.py -v
     model-tests:
@@ -40,7 +45,7 @@ jobs:
             - name: Download model weights
               run: |
                 mkdir -p backend/ml_models/weights
-                curl -L -o backend/ml_models/weights/casia_tamper_unet_latest.pth \
+                curl -L -o backend/ml_models/weights/model.pth \
                 https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth
             - name: Run model detection tests
               run: cd backend && python -m pytest tests/test_detection.py -v
