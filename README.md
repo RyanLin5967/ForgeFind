@@ -17,9 +17,10 @@ Test ForgeFind with these sample images. Right-click and save, then upload them 
 |-------|------|------------------|
 | ![splice_1](https://github.com/user-attachments/assets/bee01db2-36e3-4745-abd4-b3b4df2d8028) | Spliced | The bird was edited in|
 | ![cpypaste_1](https://github.com/user-attachments/assets/4e06a80f-8eeb-4f37-b9fe-7ea93a8aba91) | Copy-Move | The skier was copied from the middle to the bottom right |
-| ![authentic](https://github.com/user-attachments/assets/752c2e87-9411-48f7-be60-da0a37d2cf01) | Authentic | Should return 0% confidence |
+| ![authentic_2](https://github.com/user-attachments/assets/7b47a8ec-6380-4925-a280-7477e8ba1d52) | Authentic | Should return 0% confidence |
 
 ---
+
 
 ## How It Works
 
