@@ -57,8 +57,8 @@ async def take_image(image: UploadFile = File(), detection = Depends(get_detecti
             img_uuid = uuid.uuid4()
             org_path = f"static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
             mask_path = f"static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
-            org_url = f"http://localhost:8000/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
-            mask_url = f"http://localhost:8000/static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
+            org_url = f"https://idident-forgefind.hf.space/static/uploads/{img_uuid}_org.{valid_signatures.get(type)}"
+            mask_url = f"https://idident-forgefind.hf.space/static/uploads/{img_uuid}_mask.{valid_signatures.get(type)}"
             with open(org_path, "wb") as f:
                 f.write(content)
             """

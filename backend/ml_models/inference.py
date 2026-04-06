@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 import torch
 import segmentation_models_pytorch as smp 
 import os
+import requests
 
 #returns a json with coordinates to cloned parts
 def run_opencv(image_path):
@@ -86,8 +87,17 @@ def run_opencv(image_path):
     best = regions[0]
     return [best["original"], best["clone"]]
 
-BASE_DIR = os.path.dirname(__file__)
-model_path = os.path.join(BASE_DIR, "weights", "model.pth")
+BASE_DIR   = os.path.dirname(__file__)
+model_path = os.path.join(BASE_DIR, "weights", "casia_tamper_unet_latest.pth")
+
+if not os.path.exists(model_path):
+    print("downloading model...")
+    os.makedirs(os.path.join(BASE_DIR, "weights"), exist_ok=True)
+    model_url = "https://huggingface.co/idident/forgefind_model/resolve/main/casia_tamper_unet_latest.pth"
+    r = requests.get(model_url)
+    with open(model_path, "wb") as f:
+        f.write(r.content)
+    print("model downloaded")
 
 unet = smp.Unet(
     encoder_name="resnet34",

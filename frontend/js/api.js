@@ -4,7 +4,7 @@ export async function send_image(file){
     const formData = new FormData();
     formData.append("image", file);
     try{
-        const response = await fetch("http://localhost:8000/upload", {
+        const response = await fetch("https://idident-forgefind.hf.space/upload", {
             method: "POST",
             body: formData,
         });
