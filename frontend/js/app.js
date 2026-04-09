@@ -91,8 +91,8 @@ document.getElementById('overall-btn').addEventListener('click', () => {
 
 async function showLoadingScreen(){
     document.getElementById('loading-screen').classList.remove('hidden');
-    document.getElementById('loading-screen').classList.add('hidden');
     const data = await imagePromise;
+    document.getElementById('loading-screen').classList.add('hidden');
     showResults(data);
 }
 async function showResults(data){
